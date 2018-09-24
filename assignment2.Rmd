@@ -1,0 +1,37 @@
+---
+title: "Obligatory Assignment 2"
+author: "Oyvind Nordgard"
+date: "24 september 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r warning = FALSE, message = FALSE}
+library(dplyr)
+library(readr)
+library(tidyr)
+library(ggplot2)
+
+EQNR <- read_csv("https://www.netfonds.no/quotes/paperhistory.php?paper=EQNR.OSE&csv_format=csv")
+NHY <- read_csv("https://www.netfonds.no/quotes/paperhistory.php?paper=NHY.OSE&csv_format=csv")
+
+EQNR <- EQNR %>%
+  mutate(quote_date = as.Date(as.character(EQNR$quote_date), format='%Y%m%d'), EQNRclose = close)
+EQNR<- EQNR %>%
+  select(quote_date, EQNRclose)
+View(EQNR)
+
+NHY <- NHY %>%
+  mutate(quote_date = as.Date(as.character(NHY$quote_date), format='%Y%m%d'), NHYclose = close)
+NHY <- NHY %>%
+  select(quote_date, NHYclose)
+Merged <- merge(x=EQNR, y = NHY, by = 'quote_date', all.x = T)
+merged2 <- Merged %>% gather(NHYclose:EQNRclose, key = 'stock', value = 'price')
+
+ggplot(merged2, aes(quote_date, price, color = stock)) + geom_line() + theme_bw() + labs(x = "Date", y = "Price") + ggtitle("NHY vs EQNR")
+
+```
+
