@@ -1,0 +1,166 @@
+---
+title: "Assignment3"
+author: "Oyvind Nordgard"
+date: "30 september 2018"
+output: html_document
+---
+
+```{r setup, include=TRUE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(dplyr)
+library(readr)
+library(tidyr)
+library(ggplot2)
+library(PxWebApiData)
+library(httr)
+library(rjstat)
+
+url1 <- "http://data.ssb.no/api/v0/dataset/95274.json?lang=no"
+url2 <- "http://data.ssb.no/api/v0/dataset/95276.json?lang=no"
+d.tmp1 <-GET(url1)
+d.tmp2 <-GET(url2)
+tabell1 <- fromJSONstat(content(d.tmp1, "text"))
+tabell2 <- fromJSONstat(content(d.tmp2, "text"))
+
+df1 <- tabell1[[1]]
+df2 <- tabell2[[1]]
+
+View(df1)
+View(df2)
+
+Merged2 <- merge(x=df1, y = df2, by =c("måned", "statistikkvariabel"), all.x = T)
+dd <- Merged2
+
+dde <- dd[apply(dd!=0, 1, all),]
+View(dde)
+
+dde2 <- dde %>%
+  mutate(Difference = (value.x - value.y))
+View(dde2)
+
+unique(dde2$region.x)
+Helelandet <- mean(dde2$value.y) 
+
+Telemark <- dde2 %>%
+  filter(region.x=="Telemark")
+Avg.telemark <- mean(Telemark$value.x)
+
+Buskerud <- dde2 %>%
+  filter(region.x=="Buskerud")
+Avg.buskerud <- mean(Buskerud$value.x)
+
+Vestfold <- dde2 %>%
+  filter(region.x=="Vestfold")
+Avg.Vestfold <- mean(Vestfold$value.x)
+
+Rogaland <- dde2 %>%
+  filter(region.x=="Rogaland")
+Avg.Rogaland <- mean(Rogaland$value.x)
+
+MøreogRomsdal <- dde2 %>%
+  filter(region.x=="Møre og Romsdal") %>%
+  mutate(MøreogRomsdal = "Møre og Romsdal")
+Avg.MøreogRomsdal <- mean(MøreogRomsdal$value.x)
+
+Nordland <- dde2 %>%
+  filter(region.x=="Nordland")
+Avg.Nordland <- mean(Nordland$value.x)
+
+Troms <- dde2 %>%
+  filter(region.x=="Troms - Romsa") %>%
+  mutate(Troms = "Troms - Romsa")
+Avg.Troms <- mean(Troms$value.x)
+
+Hedmark <- dde2 %>%
+  filter(region.x=="Hedmark")
+Avg.Hedmark <- mean(Hedmark$value.x)
+
+Hordaland <- dde2 %>%
+  filter(region.x=="Hordaland")
+Avg.Hordaland <- mean(Hordaland$value.x)
+
+Østfold <- dde2 %>%
+  filter(region.x=="Østfold")
+Avg.Østfold <- mean(Østfold$value.x)
+
+SognogFjordane <- dde2 %>%
+  filter(region.x=="Sogn og Fjordane") %>%
+  mutate(SognogFjordane = "Sogn og Fjordane")
+Avg.sognogfjordane <- mean(SognogFjordane$value.x)
+
+Oppland <- dde2 %>%
+  filter(region.x=="Oppland")
+Avg.Oppland <- mean(Oppland$value.x)
+
+AustAgder <- dde2 %>%
+  filter(region.x=="Aust-Agder")
+Avg.AustAgder <- mean(AustAgder$value.x)
+
+Akershus <- dde2 %>%
+  filter(region.x=="Akershus")
+Avg.Akershus <- mean(Akershus$value.x)
+
+VestAgder <- dde2 %>%
+  filter(region.x=="Vest-Agder")
+Avg.VestAgder <- mean(VestAgder$value.x)
+
+Finnmark <- dde2 %>%
+  filter(region.x=="Finnmark - Finnmárku") %>%
+  mutate(Finnmark = "Finnmark - Finnmárku")
+Avg.Finnmark <- mean(Finnmark$value.x)
+
+NordTrøndelag_f17 <- dde2 %>%
+  filter(region.x=="Nord-Trøndelag (-2017)") %>%
+  mutate(NordTrøndelag_f17 = "Nord-Trøndelag (-2017)")
+Avg.NordTrøndelag_f17 <- mean(NordTrøndelag_f17$value.x)
+
+SørTrøndelag_f17 <- dde2 %>%
+  filter(region.x=="Sør-Trøndelag (-2017)") %>%
+  mutate(SørTrøndelag_f17 = "Sør-Trøndelag (-2017)")
+Avg.SørTrøndelag_f17 <- mean(SørTrøndelag_f17$value.x)
+
+Oslo <- dde2 %>%
+  filter(region.x=="Oslo")
+Avg.Oslo <- mean(Oslo$value.x)
+
+Svalbard <- dde2 %>%
+  filter(region.x=="Svalbard")
+Avg.Svalbard <- mean(Svalbard$value.x)
+
+Trøndelag <- dde2 %>%
+  filter(region.x=="Trøndelag") 
+Avg.Trøndelag <- mean(Trøndelag$value.x)
+
+Helelandet > Avg.Akershus
+Helelandet > Avg.AustAgder
+Helelandet > Avg.buskerud
+Helelandet > Avg.Finnmark
+Helelandet > Avg.Hedmark
+Helelandet > Avg.Hordaland
+Helelandet > Avg.MøreogRomsdal
+Helelandet > Avg.Oslo
+Helelandet > Avg.Troms
+Helelandet > Avg.VestAgder
+Helelandet > Avg.Vestfold
+Helelandet > Avg.Østfold
+Helelandet > Avg.Svalbard
+Helelandet > Avg.Rogaland
+Helelandet > Avg.Østfold
+Helelandet > Avg.Oppland
+Helelandet > Avg.Nordland
+Helelandet > Avg.telemark
+Helelandet > Avg.MøreogRomsdal
+Helelandet > Avg.NordTrøndelag_f17
+Helelandet > Avg.SørTrøndelag_f17
+Helelandet > Avg.Trøndelag
+
+#Telemark, Austageder, Buskerud, Finnmark, Hedmark, Møre og Romsdal, Troms, Vest-Agder, Vestfold, Østfold, Oppland, Nordland, Telemark, MøreogRomsdal
+#Nord-trøndelag og Sør-trøndelag var under landsgjennomsnittet. De resterende var over snittet. 
+
+
+
+```
+
