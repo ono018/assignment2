@@ -1,0 +1,132 @@
+---
+title: "Assignment 4"
+author: "Oyvind Nordgard"
+date: "25 november 2018"
+output: html_document
+---
+
+
+```{r setup, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r include=FALSE, message=FALSE} 
+
+library(rvest)
+library(tidyverse)
+library(rlist)
+library(plyr)  
+```
+
+# **Web Scraping**
+
+Specifying the url for desired website to be scrapped
+```{r}
+url <- "https://w2.brreg.no/kunngjoring/kombisok.jsp?datoFra=01.10.2017&datoTil=30.09.2018&id_region=100&id_fylke=19&id_kommune=1902&id_niva1=51&id_niva2=-+-+-&id_bransje1=0"
+
+```
+
+Reading & checking the HTML code from the website
+```{r}
+Webpage <- read_html(url)
+str(Webpage)
+```
+
+Using CSS selectors to scrap the kunngjorings section
+```{r}
+Kunngjorings_Type_html <- html_nodes(Webpage,"p a")
+```
+
+Converting the title of the data to text
+```{r}
+Announcement <- html_text(Kunngjorings_Type_html)
+Announcement <- factor(Announcement)
+head(Announcement)
+tail(Announcement)
+str(Announcement)
+```
+
+
+Using CSS selectors to scrap the dato section and converting it to text,
+and converting dato from character to date format. 
+
+```{r}
+dato1 <- html_nodes(Webpage,"tr~ tr+ tr td:nth-child(6) p")
+dato <- html_text(dato1)
+head(dato)
+dato <- as.Date(dato, format = "%d.%m.%Y")
+str(dato)
+```
+
+Using CSS selectors to scrap the digits section, then converting it to text
+```{r}
+digits_html<-html_nodes(Webpage,"td:nth-child(4) p")
+digits <- html_text(digits_html)
+head(digits)
+str(digits)
+```
+Preparing the data, removing extra space in the digits
+```{r}
+digits <- str_replace_all(string= digits, pattern=" ", repl="")
+```
+
+Converting from character to numeric
+```{r}
+digits <- as.numeric(digits)
+str(digits)
+head(digits)
+```
+
+
+Using CSS selectors to scrap the names section, and converting the html
+to text and characters.
+
+```{r}
+name_html_type<-html_nodes(Webpage,"td td:nth-child(2) p")
+name <-html_text(name_html_type[1:162])
+name <-as.character(name)
+str(name)
+```
+
+
+
+Creating a dataframe from the vectors
+
+```{r}
+dataframe <- data.frame(name, dato, digits, Announcement, stringsAsFactors = F)
+glimpse(dataframe)
+dataframe <- filter(dataframe, digits > 1000000)
+dim(dataframe)
+```
+Selecting companies (i.e. "AS")
+```{r}
+Bedrift_Announcement<-dataframe[grep("AS", dataframe$name),]
+str(Bedrift_Announcement)
+head(Bedrift_Announcement)
+
+```
+
+
+Companies who have been declared compulsory dissoluted.
+```{r}
+Compulsory_disolved<-Bedrift_Announcement[grep("Tvangsoppløsning", Bedrift_Announcement$Announcement),]
+names(Compulsory_disolved)
+str(Compulsory_disolved)
+head(Compulsory_disolved)
+```
+
+Plotting announcement and date.
+```{r}
+qplot(data = Bedrift_Announcement,dato,fill = Announcement, binwidth = 50)
+```
+
+Frequency of announcements
+```{r}
+count(count(Bedrift_Announcement,"Bedrift_Announcement$Announcement"))
+```
+
+```{r}
+count(Bedrift_Announcement,"Bedrift_Announcement$Announcement")
+```
+
